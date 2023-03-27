@@ -1,0 +1,25 @@
+{
+  "users": [
+    {
+      "firstName": "Alessio",
+      "lastName": "D'Amico",
+      "email": "ale.ale@ale.com",
+      "password": "$2b$10$LgsRrYEVEP05zKxDiz7oJO0wd2MxvCeDvMEvvioDr3qHlfCI7wZ7O",
+      "id": 1
+    },
+    {
+      "firstName": "Veronica",
+      "lastName": "Raimondi",
+      "email": "vero.vero@vero.com",
+      "password": "$2b$10$SrygPAsLoRkUYSfLZOczjO9F.4KUCUubVsH9yEplNk2FBXfBzpqjm",
+      "id": 2
+    },
+    {
+      "firstName": "Vincenzo",
+      "lastName": "D'Amico",
+      "email": "enzo.enzo@enzo.com",
+      "password": "$2b$10$6WimmA2CXWlC1Yss5THfOOdWWjbpDuGrpkuGKATN//443vTE57cAy",
+      "id": 3
+    }
+  ]
+}
