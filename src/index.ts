@@ -1,4 +1,3 @@
-// const express = require('express')
 import express from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -23,6 +22,13 @@ app.use(bodyParser.json());
 
 app.use('/api', jsonServer.router('db.json'));
 
+app.get('/users', (req, res) => {
+    axios.get('http://localhost:3000/users')
+    .then((resp: (any)) => {
+        const users = resp.data;
+        res.status(200).json(users)
+    });
+});
 
 app.post('/welcome', auth, (req, res) => {
     res.status(200).send('BENVENUTO 🙌🏻 ');
