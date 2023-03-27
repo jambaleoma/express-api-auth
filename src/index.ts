@@ -3,15 +3,11 @@ import dotenv from 'dotenv';
 dotenv.config();
 const jsonServer = require('json-server');
 const jwt = require('jsonwebtoken');
-const app = express()
-var bodyParser = require('body-parser')
+const app = express();
+var bodyParser = require('body-parser');
 const axios = require('axios');
 const bcrypt = require('bcrypt');
 const auth = require("../middleware/auth");
-
-const {
-    error
-} = require('console');
 const TOKEN_SECRET = process.env.TOKEN_SECRET;
 const PORT = process.env.PORT;
 
