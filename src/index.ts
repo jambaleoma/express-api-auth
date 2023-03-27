@@ -22,6 +22,7 @@ app.use(bodyParser.json());
 
 app.use('/api', jsonServer.router('db.json'));
 
+// GET ALL USERS
 app.get('/users', (req, res) => {
     axios.get('http://localhost:3000/users')
     .then((resp: (any)) => {
@@ -29,6 +30,17 @@ app.get('/users', (req, res) => {
         res.status(200).json(users)
     });
 });
+
+// GET ONE USER
+app.get('/users/:id', (req, res) => {
+    const id = +req.params.id;
+    axios.get('http://localhost:3000/users')
+    .then((resp: (any)) => {
+        const users = resp.data;
+        const user = users.filter((u: any) => u.id === id);
+        res.status(200).json(user)
+    });
+  });
 
 app.post('/welcome', auth, (req, res) => {
     res.status(200).send('BENVENUTO 🙌🏻 ');
