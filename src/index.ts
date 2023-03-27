@@ -38,10 +38,12 @@ app.get('/users/:id', (req, res) => {
     });
   });
 
+// CHECK AUTH
 app.post('/welcome', auth, (req, res) => {
     res.status(200).send('BENVENUTO 🙌🏻 ');
 });
 
+// LOGIN
 app.post('/login', (req, res) => {
     if (req.body.email) {
         axios.get('http://localhost:3000/users')
@@ -68,7 +70,8 @@ app.post('/login', (req, res) => {
     }
 })
 
-app.post('/createNewUser', async (req, res) => {
+// CREATE USER
+app.post('/users', async (req, res) => {
     // Our register logic starts here
     try {
         // Get user input
@@ -87,14 +90,14 @@ app.post('/createNewUser', async (req, res) => {
         // check if user already exist
         // Validate if user exist in our database
         axios.get('http://localhost:3000/users')
-            .then(async (res: { data: any; status: (arg0: number) => { (): any; new(): any; send: { (arg0: string): any; new(): any; }; json: { (arg0: any): void; new(): any; }; }; }) => {
-                let data = res.data;
+            .then(async (responseUsers: { data: any; status: (arg0: number) => { (): any; new(): any; send: { (arg0: string): any; new(): any; }; json: { (arg0: any): void; new(): any; }; }; }) => {
+                let data = responseUsers.data;
                 let checkFinish = false;
                 let userAlreadyExist = false;
                 await data.forEach((user: { email: any; }) => {
                     if (user.email === req.body.email) {
                         userAlreadyExist = true;
-                        return res.status(409).send("User Already Exist. Please Login");
+                        res.status(409).send("User Already Exist. Please Login");
                     }
                 });
                 checkFinish = true;
@@ -126,6 +129,63 @@ app.post('/createNewUser', async (req, res) => {
     } catch (err) {
         console.log(err);
     }
+});
+
+// UPDATE USER
+app.put('/users/:id', async (req, res) => {
+	try {
+        // Get user input
+        const { firstName, lastName, email, password } = req.body;
+        // UPDATE user in our database
+        await axios.put('http://localhost:3000/users/' + req.params.id, {
+            firstName,
+            lastName,
+            email,
+            password
+        })
+        .then((u: any) => {
+            // return updated user
+            res.status(200).json(u.data);
+        })
+        .catch((err: any) => console.log(err)); 
+    } catch (err) {
+        console.log(err);
+    }
+});
+
+// MODIFY USER
+app.patch('/users/:id', async (req, res) => {
+	try {
+        // Get user input
+        const { firstName, lastName, email, password } = req.body;
+        // UPDATE user in our database
+        await axios.patch('http://localhost:3000/users/' + req.params.id, {
+            firstName,
+            lastName,
+            email,
+            password
+        })
+        .then((u: any) => {
+            // return updated user
+            res.status(200).json(u.data);
+        })
+        .catch((err: any) => console.log(err)); 
+    } catch (err) {
+        console.log(err);
+    }
+});
+
+// DELETE USER
+app.delete('/users/:id', (req, res) => {
+    const id = +req.params.id;
+    axios.delete('http://localhost:3000/users/' + id)
+        .then((resp: any) => {
+        if (resp.status === 200) {
+            res.status(200).send('UTENTE ELIMINATO!');
+        } else {
+            res.status(404).send('UTENTE NON ELIMINATO!');
+        }
+    });
 });
 
 function generateAccessToken(email: { email: any; }) {
