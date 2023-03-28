@@ -4,6 +4,7 @@ dotenv.config();
 const jsonServer = require('json-server');
 const jwt = require('jsonwebtoken');
 const app = express();
+const cors = require('cors');
 var bodyParser = require('body-parser');
 const axios = require('axios');
 const bcrypt = require('bcrypt');
@@ -11,32 +12,30 @@ const auth = require("../middleware/auth");
 const TOKEN_SECRET = process.env.TOKEN_SECRET;
 const PORT = process.env.PORT;
 
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
 app.use('/api', jsonServer.router('db.json'));
+app.use(cors())
 
 // GET ALL USERS
 app.get('/users', (req, res) => {
     axios.get('http://localhost:3000/users')
-    .then((resp: (any)) => {
-        const users = resp.data;
-        res.status(200).json(users)
-    });
+        .then((resp: (any)) => {
+            const users = resp.data;
+            res.status(200).json(users)
+        });
 });
 
 // GET ONE USER
 app.get('/users/:id', (req, res) => {
     const id = +req.params.id;
     axios.get('http://localhost:3000/users')
-    .then((resp: (any)) => {
-        const users = resp.data;
-        const user = users.filter((u: any) => u.id === id);
-        res.status(200).json(user)
-    });
-  });
+        .then((resp: (any)) => {
+            const users = resp.data;
+            const user = users.filter((u: any) => u.id === id);
+            res.status(200).json(user)
+        });
+});
 
 // CHECK AUTH
 app.post('/welcome', auth, (req, res) => {
@@ -55,6 +54,7 @@ app.post('/login', (req, res) => {
                                 email: req.body.email
                             });
                             user.token = token;
+                            user.exp = 7200;
                             res.status(200).json(user);
                         } else {
                             res.status(403).send('PASSWORD NON CORRETTA!');
@@ -107,11 +107,11 @@ app.post('/users', async (req, res) => {
 
                     // Create user in our database
                     await axios.post('http://localhost:3000/users', {
-                            firstName,
-                            lastName,
-                            email: email.toLowerCase(), // sanitize: convert email to lowercase
-                            password: encryptedPassword,
-                        })
+                        firstName,
+                        lastName,
+                        email: email.toLowerCase(), // sanitize: convert email to lowercase
+                        password: encryptedPassword,
+                    })
                         .then((u: any) => {
                             // Create token
                             const token = generateAccessToken({
@@ -119,13 +119,14 @@ app.post('/users', async (req, res) => {
                             });
                             // save user token
                             u.data.token = token;
+                            u.data.exp = 7200;
 
                             // return new user
                             res.status(201).json(u.data);
                         })
                         .catch((err: any) => console.log(err));
                 }
-            })  
+            })
     } catch (err) {
         console.log(err);
     }
@@ -133,7 +134,7 @@ app.post('/users', async (req, res) => {
 
 // UPDATE USER
 app.put('/users/:id', async (req, res) => {
-	try {
+    try {
         // Get user input
         const { firstName, lastName, email, password } = req.body;
         // UPDATE user in our database
@@ -143,11 +144,11 @@ app.put('/users/:id', async (req, res) => {
             email,
             password
         })
-        .then((u: any) => {
-            // return updated user
-            res.status(200).json(u.data);
-        })
-        .catch((err: any) => console.log(err)); 
+            .then((u: any) => {
+                // return updated user
+                res.status(200).json(u.data);
+            })
+            .catch((err: any) => console.log(err));
     } catch (err) {
         console.log(err);
     }
@@ -155,7 +156,7 @@ app.put('/users/:id', async (req, res) => {
 
 // MODIFY USER
 app.patch('/users/:id', async (req, res) => {
-	try {
+    try {
         // Get user input
         const { firstName, lastName, email, password } = req.body;
         // UPDATE user in our database
@@ -165,11 +166,11 @@ app.patch('/users/:id', async (req, res) => {
             email,
             password
         })
-        .then((u: any) => {
-            // return updated user
-            res.status(200).json(u.data);
-        })
-        .catch((err: any) => console.log(err)); 
+            .then((u: any) => {
+                // return updated user
+                res.status(200).json(u.data);
+            })
+            .catch((err: any) => console.log(err));
     } catch (err) {
         console.log(err);
     }
@@ -180,20 +181,20 @@ app.delete('/users/:id', (req, res) => {
     const id = +req.params.id;
     axios.delete('http://localhost:3000/users/' + id)
         .then((resp: any) => {
-        if (resp.status === 200) {
-            res.status(200).send('UTENTE ELIMINATO!');
-        } else {
-            res.status(404).send('UTENTE NON ELIMINATO!');
-        }
-    });
+            if (resp.status === 200) {
+                res.status(200).send('UTENTE ELIMINATO!');
+            } else {
+                res.status(404).send('UTENTE NON ELIMINATO!');
+            }
+        });
 });
 
 function generateAccessToken(email: { email: any; }) {
     return jwt.sign(
         email,
         TOKEN_SECRET, {
-            expiresIn: '2h'
-        }
+        expiresIn: '2h'
+    }
     );
 }
 
